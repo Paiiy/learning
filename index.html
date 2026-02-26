@@ -1,0 +1,1410 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>PPLG Learning Hub - Platform Pembelajaran Pemrograman</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <meta name="theme-color" content="#4361ee">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="PPLG Learning Hub">
+    <link rel="apple-touch-icon" href="https://i.imgur.com/8zvX5Jf.png">
+    
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-analytics.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, signOut, sendEmailVerification, applyActionCode, checkActionCode } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+        
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyD5XQtpmNhZnap8bcyz35zW7Zip1XPcksE",
+            authDomain: "web-learning-58504.firebaseapp.com",
+            projectId: "web-learning-58504",
+            storageBucket: "web-learning-58504.firebasestorage.app",
+            messagingSenderId: "907745564400",
+            appId: "1:907745564400:web:044c11338bc6415f5a5435",
+            measurementId: "G-JPNPZEN37J"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        
+        // Initialize Firebase services and make them globally available
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        // Make Firebase services globally available
+        window.firebaseApp = app;
+        window.auth = auth;
+        window.db = db;
+        window.firebaseAnalytics = analytics;
+        
+        // Make Firebase functions globally available
+        window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+        window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+        window.updateProfile = updateProfile;
+        window.signOut = signOut;
+        window.sendEmailVerification = sendEmailVerification;
+        window.applyActionCode = applyActionCode;
+        window.checkActionCode = checkActionCode;
+        window.doc = doc;
+        window.setDoc = setDoc;
+        window.getDoc = getDoc;
+        window.updateDoc = updateDoc;
+        window.serverTimestamp = serverTimestamp;
+    </script>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Email Verification Modal -->
+    <div class="verification-modal" id="verificationModal">
+        <div class="modal-overlay" id="verificationModalOverlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <img src="https://i.imgur.com/8zvX5Jf.png" alt="PPLG Learning Hub" class="modal-logo-image">
+                <button class="close-modal" id="closeVerificationModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="verification-icon">
+                    <i class="fas fa-envelope"></i>
+                </div>
+                <h2 class="verification-title">Verifikasi Email Anda</h2>
+                <p class="verification-subtitle">Kami telah mengirim email verifikasi ke alamat email Anda. Silakan periksa inbox Anda dan klik link verifikasi untuk melanjutkan.</p>
+                
+                <div class="verification-info">
+                    <div class="verification-item">
+                        <i class="fas fa-envelope"></i>
+                        <div>
+                            <strong>Email:</strong>
+                            <span id="verificationEmail">email@example.com</span>
+                        </div>
+                    </div>
+                    <div class="verification-item">
+                        <i class="fas fa-clock"></i>
+                        <div>
+                            <strong>Status:</strong>
+                            <span id="verificationStatus" class="status-pending">Menunggu Verifikasi</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="verification-actions">
+                    <button class="btn btn-secondary" id="resendVerificationBtn">
+                        <i class="fas fa-redo"></i>
+                        <span>Kirim Ulang Email</span>
+                    </button>
+                    <button class="btn btn-primary" id="checkVerificationBtn">
+                        <i class="fas fa-check"></i>
+                        <span>Sudah Verifikasi</span>
+                    </button>
+                </div>
+                
+                <div class="verification-tips">
+                    <h4>Tips:</h4>
+                    <ul>
+                        <li>Periksa folder spam atau junk email Anda jika tidak menemukan email verifikasi.</li>
+                        <li>Email verifikasi mungkin memerlukan waktu beberapa saat untuk tiba.</li>
+                        <li>Jika Anda tidak menerima email, coba kirim ulang dengan tombol di atas.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
+
+    <!-- Back to Top Button -->
+    <div class="back-to-top" id="backToTop">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+
+    <!-- Header & Navigation -->
+    <header class="navbar-white">
+        <div class="container">
+            <nav class="navbar">
+                <a href="#" class="logo">
+                    <img src="Gemini_Generated_Image_cyhnumcyhnumcyhn.png" alt="PPLG Learning Hub" class="logo-image">
+                </a>
+                
+                <div class="mobile-menu-btn" id="mobileMenuBtn">
+                    <i class="fas fa-bars"></i>
+                </div>
+                
+                <ul class="nav-links" id="navLinks">
+                    <li><a href="#beranda" class="active">Beranda</a></li>
+                    <li><a href="#materi-pemrograman">Materi Pemrograman</a></li>
+                    <li><a href="#materi-game">Materi Game</a></li>
+                    <li><a href="#contoh-kode">Contoh Kode</a></li>
+                    <li><a href="#kuis-interaktif">Kuis Interaktif</a></li>
+                    <li><a href="#profil-kelompok">Profil Kelompok</a></li>
+                    <li><a href="#ulasan">Ulasan</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section / Beranda -->
+    <section class="hero" id="beranda">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1 class="hero-title">Platform Pembelajaran <span>PPLG</span> Terbaik</h1>
+                    <p class="hero-description">
+                        Tingkatkan kemampuan pemrograman Anda dengan materi lengkap, contoh kode nyata, dan pembelajaran interaktif yang dirancang khusus untuk siswa PPLG.
+                    </p>
+                    
+                    <div class="hero-buttons">
+                        <a href="#materi-pemrograman" class="btn btn-primary">Mulai Belajar</a>
+                        <a href="#profil-kelompok" class="btn btn-secondary">Tentang Kami</a>
+                    </div>
+                    
+                    <div class="hero-stats">
+                        <div class="stat-item">
+                            <h3>50+</h3>
+                            <p>Materi Pembelajaran</p>
+                        </div>
+                        <div class="stat-item">
+                            <h3>200+</h3>
+                            <p>Contoh Kode</p>
+                        </div>
+                        <div class="stat-item">
+                            <h3>1000+</h3>
+                            <p>Siswa Terdaftar</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="hero-visual">
+                    <div class="code-visual">
+                        <div class="code-header">
+                            <div class="code-title">hello_world.js</div>
+                            <div class="code-dots">
+                                <div class="dot red"></div>
+                                <div class="dot yellow"></div>
+                                <div class="dot green"></div>
+                            </div>
+                        </div>
+                        <div class="code-content">
+                            <div class="code-line"><span class="code-keyword">function</span> <span class="code-function">helloWorld</span>() {</div>
+                            <div class="code-line">&nbsp;&nbsp;<span class="code-keyword">let</span> message = <span class="code-string">"Selamat Datang di PPLG Learning Hub!"</span>;</div>
+                            <div class="code-line">&nbsp;&nbsp;console.<span class="code-function">log</span>(message);</div>
+                            <div class="code-line">}</div>
+                            <div class="code-line"></div>
+                            <div class="code-line"><span class="code-comment">// Memanggil fungsi</span></div>
+                            <div class="code-line"><span class="code-function">helloWorld</span>();</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Materi Pemrograman -->
+    <section class="materi-pemrograman section" id="materi-pemrograman">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Materi Pemrograman</h2>
+                <p class="section-subtitle">Pelajari teknologi web terbaru dengan materi yang lengkap dan terstruktur dari dasar hingga mahir.</p>
+            </div>
+            
+            <div class="materi-filter">
+                <div class="filter-btn active" data-filter="all">Semua</div>
+                <div class="filter-btn" data-filter="frontend">Frontend</div>
+                <div class="filter-btn" data-filter="backend">Backend</div>
+                <div class="filter-btn" data-filter="database">Database</div>
+            </div>
+            
+            <div class="materi-grid">
+                <!-- HTML -->
+                <div class="materi-card" data-category="frontend" data-video-id="UB1O30fR-EE" data-materi="html">
+                    <div class="materi-header">
+                        <div class="materi-icon html-icon">
+                            <i class="fab fa-html5"></i>
+                        </div>
+                        <div>
+                            <h3 class="materi-title">HTML 5</h3>
+                            <p class="materi-level">Level: Pemula</p>
+                        </div>
+                    </div>
+                    <div class="materi-body">
+                        <p class="materi-description">
+                            Pelajari struktur dasar HTML, semantic elements, form validation, dan teknik modern untuk membangun kerangka website yang solid.
+                        </p>
+                        <div class="materi-meta">
+                            <div class="materi-duration">
+                                <i class="far fa-clock"></i>
+                                <span>15 Jam</span>
+                            </div>
+                            <div class="materi-modules">
+                                <i class="far fa-folder"></i>
+                                <span>12 Modul</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Overlay untuk materi yang terkunci -->
+                    <div class="materi-locked-overlay">
+                        <div class="locked-content">
+                            <i class="fas fa-lock"></i>
+                            <p>Login untuk mengakses materi ini</p>
+                            <button class="btn btn-primary" onclick="showLoginModal('materi-pemrograman')">Login Sekarang</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- CSS -->
+                <div class="materi-card" data-category="frontend" data-video-id="1Rs2ND1ryYc" data-materi="css">
+                    <div class="materi-header">
+                        <div class="materi-icon css-icon">
+                            <i class="fab fa-css3-alt"></i>
+                        </div>
+                        <div>
+                            <h3 class="materi-title">CSS 3 & Flexbox</h3>
+                            <p class="materi-level">Level: Menengah</p>
+                        </div>
+                    </div>
+                    <div class="materi-body">
+                        <p class="materi-description">
+                            Kuasai styling modern dengan CSS3, Flexbox, Grid, animasi, dan responsive design untuk menciptakan tampilan website yang menarik.
+                        </p>
+                        <div class="materi-meta">
+                            <div class="materi-duration">
+                                <i class="far fa-clock"></i>
+                                <span>20 Jam</span>
+                            </div>
+                            <div class="materi-modules">
+                                <i class="far fa-folder"></i>
+                                <span>18 Modul</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Overlay untuk materi yang terkunci -->
+                    <div class="materi-locked-overlay">
+                        <div class="locked-content">
+                            <i class="fas fa-lock"></i>
+                            <p>Login untuk mengakses materi ini</p>
+                            <button class="btn btn-primary" onclick="showLoginModal('materi-pemrograman')">Login Sekarang</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- JavaScript -->
+                <div class="materi-card" data-category="frontend" data-video-id="W6NZfCO5SIk" data-materi="javascript">
+                    <div class="materi-header">
+                        <div class="materi-icon js-icon">
+                            <i class="fab fa-js"></i>
+                        </div>
+                        <div>
+                            <h3 class="materi-title">JavaScript ES6+</h3>
+                            <p class="materi-level">Level: Menengah</p>
+                        </div>
+                    </div>
+                    <div class="materi-body">
+                        <p class="materi-description">
+                            Pelajari JavaScript modern dengan fitur ES6+, DOM manipulation, asynchronous programming, dan framework populer.
+                        </p>
+                        <div class="materi-meta">
+                            <div class="materi-duration">
+                                <i class="far fa-clock"></i>
+                                <span>30 Jam</span>
+                            </div>
+                            <div class="materi-modules">
+                                <i class="far fa-folder"></i>
+                                <span>24 Modul</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Overlay untuk materi yang terkunci -->
+                    <div class="materi-locked-overlay">
+                        <div class="locked-content">
+                            <i class="fas fa-lock"></i>
+                            <p>Login untuk mengakses materi ini</p>
+                            <button class="btn btn-primary" onclick="showLoginModal('materi-pemrograman')">Login Sekarang</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Java -->
+                <div class="materi-card" data-category="backend" data-video-id="eIrMbAQSU34" data-materi="java">
+                    <div class="materi-header">
+                        <div class="materi-icon java-icon">
+                            <i class="fab fa-java"></i>
+                        </div>
+                        <div>
+                            <h3 class="materi-title">Java Programming</h3>
+                            <p class="materi-level">Level: Pemula</p>
+                        </div>
+                    </div>
+                    <div class="materi-body">
+                        <p class="materi-description">
+                            Pelajari dasar-dasar pemrograman Java, OOP, collection framework, dan pengembangan aplikasi desktop.
+                        </p>
+                        <div class="materi-meta">
+                            <div class="materi-duration">
+                                <i class="far fa-clock"></i>
+                                <span>25 Jam</span>
+                            </div>
+                            <div class="materi-modules">
+                                <i class="far fa-folder"></i>
+                                <span>20 Modul</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Overlay untuk materi yang terkunci -->
+                    <div class="materi-locked-overlay">
+                        <div class="locked-content">
+                            <i class="fas fa-lock"></i>
+                            <p>Login untuk mengakses materi ini</p>
+                            <button class="btn btn-primary" onclick="showLoginModal('materi-pemrograman')">Login Sekarang</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Python -->
+                <div class="materi-card" data-category="backend" data-video-id="B1s8KL9dv4E" data-materi="python">
+                    <div class="materi-header">
+                        <div class="materi-icon python-icon">
+                            <i class="fab fa-python"></i>
+                        </div>
+                        <div>
+                            <h3 class="materi-title">Python & Django</h3>
+                            <p class="materi-level">Level: Menengah</p>
+                        </div>
+                    </div>
+                    <div class="materi-body">
+                        <p class="materi-description">
+                            Pelajari Python untuk web development dengan framework Django, REST API, dan database integration.
+                        </p>
+                        <div class="materi-meta">
+                            <div class="materi-duration">
+                                <i class="far fa-clock"></i>
+                                <span>28 Jam</span>
+                            </div>
+                            <div class="materi-modules">
+                                <i class="far fa-folder"></i>
+                                <span>22 Modul</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Overlay untuk materi yang terkunci -->
+                    <div class="materi-locked-overlay">
+                        <div class="locked-content">
+                            <i class="fas fa-lock"></i>
+                            <p>Login untuk mengakses materi ini</p>
+                            <button class="btn btn-primary" onclick="showLoginModal('materi-pemrograman')">Login Sekarang</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Materi Pembuatan Game -->
+    <section class="materi-game section" id="materi-game">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Materi Pembuatan Game</h2>
+                <p class="section-subtitle">Pelajari pengembangan game dari konsep hingga implementasi dengan teknologi modern.</p>
+            </div>
+            
+            <div class="game-steps">
+                <div class="game-step">
+                    <div class="step-number">1</div>
+                    <div class="step-icon">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <h3 class="step-title">Konsep & Desain</h3>
+                    <p class="step-description">
+                        Pelajari cara mengembangkan ide game, membuat storyboard, desain karakter, dan alur cerita yang menarik.
+                    </p>
+                </div>
+                
+                <div class="game-step">
+                    <div class="step-number">2</div>
+                    <div class="step-icon">
+                        <i class="fas fa-gamepad"></i>
+                    </div>
+                    <h3 class="step-title">Game Engine</h3>
+                    <p class="step-description">
+                        Kuasai penggunaan game engine populer seperti Unity atau Godot untuk mengembangkan game 2D dan 3D.
+                    </p>
+                </div>
+                
+                <div class="game-step">
+                    <div class="step-number">3</div>
+                    <div class="step-icon">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <h3 class="step-title">Programming</h3>
+                    <p class="step-description">
+                        Implementasikan logika game dengan C# atau JavaScript, termasuk AI, fisika, dan sistem scoring.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contoh Kode -->
+    <section class="contoh-kode section" id="contoh-kode">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Contoh Kode</h2>
+                <p class="section-subtitle">Pelajari melalui contoh kode nyata yang dapat langsung Anda coba dan modifikasi.</p>
+            </div>
+            
+            <div class="code-tabs">
+                <div class="code-tab active" data-language="html">HTML</div>
+                <div class="code-tab" data-language="css">CSS</div>
+                <div class="code-tab" data-language="js">JavaScript</div>
+                <div class="code-tab" data-language="java">Java</div>
+            </div>
+            
+            <div class="code-display">
+                <div class="code-display-header">
+                    <div class="code-display-title" id="codeTitle">index.html</div>
+                    <button class="copy-btn" id="copyCodeBtn">
+                        <i class="far fa-copy"></i>
+                        <span>Salin Kode</span>
+                    </button>
+                </div>
+                <div class="code-display-content">
+                    <pre id="codeContent"><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html lang="id"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    &lt;title&gt;Website PPLG Saya&lt;/title&gt;
+    &lt;link rel="stylesheet" href="style.css"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;header&gt;
+        &lt;nav&gt;
+            &lt;div class="logo"&gt;
+                &lt;h1&gt;PPLG Learning&lt;/h1&gt;
+            &lt;/div&gt;
+            &lt;ul class="nav-links"&gt;
+                &lt;li&gt;&lt;a href="#home"&gt;Beranda&lt;/a&gt;&lt;/li&gt;
+                &lt;li&gt;&lt;a href="#about"&gt;Tentang&lt;/a&gt;&lt;/li&gt;
+                &lt;li&gt;&lt;a href="#courses"&gt;Materi&lt;/a&gt;&lt;/li&gt;
+                &lt;li&gt;&lt;a href="#contact"&gt;Kontak&lt;/a&gt;&lt;/li&gt;
+            &lt;/ul&gt;
+        &lt;/nav&gt;
+    &lt;/header&gt;
+
+    &lt;main&gt;
+        &lt;section id="hero"&gt;
+            &lt;div class="hero-content"&gt;
+                &lt;h2&gt;Belajar Pemrograman Web&lt;/h2&gt;
+                &lt;p&gt;Platform pembelajaran terbaik untuk siswa PPLG&lt;/p&gt;
+                &lt;a href="#courses" class="btn"&gt;Mulai Belajar&lt;/a&gt;
+            &lt;/div&gt;
+        &lt;/section&gt;
+    &lt;/main&gt;
+
+    &lt;script src="script.js"&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Kuis Interaktif -->
+    <section class="kuis-interaktif section" id="kuis-interaktif">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Kuis Interaktif</h2>
+                <p class="section-subtitle">Uji pemahaman Anda dengan kuis interaktif tentang pemrograman web. Dapatkan reward gambar jika menjawab lebih dari 5 pertanyaan dengan benar!</p>
+            </div>
+            
+            <div class="quiz-container">
+                <div id="quizContent">
+                    <div class="quiz-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                        <div class="progress-text">
+                            <span>Pertanyaan <span id="currentQuestion">1</span> dari 10</span>
+                            <span id="scoreText">Skor: 0</span>
+                        </div>
+                    </div>
+                    
+                    <div class="quiz-question" id="question1">
+                        <h3 class="question-text" id="questionText">Apa kepanjangan dari HTML?</h3>
+                        
+                        <div class="question-options" id="questionOptions">
+                            <div class="option" data-correct="true">
+                                <div class="option-letter">A</div>
+                                <div class="option-text">HyperText Markup Language</div>
+                            </div>
+                            <div class="option" data-correct="false">
+                                <div class="option-letter">B</div>
+                                <div class="option-text">Hyper Transfer Markup Language</div>
+                            </div>
+                            <div class="option" data-correct="false">
+                                <div class="option-letter">C</div>
+                                <div class="option-text">HighText Machine Language</div>
+                            </div>
+                            <div class="option" data-correct="false">
+                                <div class="option-letter">D</div>
+                                <div class="option-text">HyperTool Markup Language</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="quiz-navigation">
+                        <button class="btn btn-secondary" id="prevBtn" disabled>Sebelumnya</button>
+                        <button class="btn btn-primary" id="nextBtn">Selanjutnya</button>
+                        <button class="btn btn-primary" id="submitBtn" style="display: none;">Lihat Hasil</button>
+                    </div>
+                </div>
+                
+                <div class="quiz-result" id="quizResult">
+                    <div class="result-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <h2 class="result-title">Kuis Selesai!</h2>
+                    <p class="result-message" id="resultMessage"></p>
+                    <div class="result-score" id="finalScore">0/10</div>
+                    
+                    <!-- Reward Image Container -->
+                    <div class="reward-container" id="rewardContainer" style="display: none;">
+                        <h3 class="reward-title">Selamat! Anda mendapat reward:</h3>
+                        <div class="reward-image">
+                            <img id="rewardImage" src="https://preview.redd.it/i1z7kignbbla1.jpg?width=640&crop=smart&auto=webp&s=b009a6a10be3fbe72c828c84b4970c6dda16ce43" alt="Reward Image">
+                        </div>
+                        <p class="reward-description" id="rewardDescription"></p>
+                    </div>
+                    
+                    <button class="btn btn-primary" id="retryBtn">Coba Lagi</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Profil Kelompok -->
+    <section class="profil-kelompok section" id="profil-kelompok">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Profil Kelompok</h2>
+                <p class="section-subtitle">Tim pengembang PPLG Learning Hub yang berdedikasi untuk pendidikan pemrograman.</p>
+            </div>
+            
+            <div class="team-grid">
+                <!-- Anggota 1 -->
+                <div class="team-member">
+                    <div class="member-photo">
+                        <img src="1.jpeg" alt="M.ichsan lutfi">
+                    </div>
+                    <div class="member-info">
+                        <h3 class="member-name">M.ichsan lutfi</h3>
+                        <p class="member-role">Project Manager</p>
+                        <p class="member-description">Bertanggung jawab atas perencanaan, pelaksanaan, dan monitoring proyek pembelajaran PPLG Learning Hub. Memastikan semua sumber daya teralokasi dengan efisien, mengidentifikasi risiko potensial, dan mengambil keputusan strategis untuk mencapai tujuan proyek tepat waktu.</p>
+                    </div>
+                    <div class="member-skills">
+                        <span class="skill-tag">HTML</span>
+                        <span class="skill-tag">CSS</span>
+                        <span class="skill-tag">JavaScript</span>
+                    </div>
+                    <div class="member-social">
+                        <a href="#" class="social-link"><i class="fab fa-github"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                
+                <!-- Anggota 2 -->
+                <div class="team-member">
+                    <div class="member-photo">
+                        <img src="2.jpeg" alt="Aken Deandra P.P">
+                    </div>
+                    <div class="member-info">
+                        <h3 class="member-name">Aken Deandra P.P</h3>
+                        <p class="member-role">Writer</p>
+                        <p class="member-description">Bertanggung jawab atas pembuatan konten edukasi berkualitas tinggi untuk platform PPLG Learning Hub. Menulis materi pembelajaran yang terstruktur, jelas, dan mudah dipahami, serta membuat dokumentasi teknis dan panduan pengguna untuk mendukung pengalaman belajar yang optimal.</p>
+                    </div>
+                    <div class="member-skills">
+                        <span class="skill-tag">HTML</span>
+                        <span class="skill-tag">CSS</span>
+                        <span class="skill-tag">JavaScript</span>
+                    </div>
+                    <div class="member-social">
+                        <a href="#" class="social-link"><i class="fab fa-dribbble"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-behance"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                
+                <!-- Anggota 3 -->
+                <div class="team-member">
+                    <div class="member-photo">
+                        <img src="3.jpeg" alt="Iksan Nur Fajar">
+                    </div>
+                    <div class="member-info">
+                        <h3 class="member-name">Iksan Nur Fajar</h3>
+                        <p class="member-role">Writer</p>
+                        <p class="member-description">Bertanggung jawab atas pembuatan konten edukasi berkualitas tinggi untuk platform PPLG Learning Hub. Menulis materi pembelajaran yang terstruktur, jelas, dan mudah dipahami, serta membuat dokumentasi teknis dan panduan pengguna untuk mendukung pengalaman belajar yang optimal.</p>
+                    </div>
+                    <div class="member-skills">
+                        <span class="skill-tag">HTML</span>
+                        <span class="skill-tag">CSS</span>
+                        <span class="skill-tag">JavaScript</span>
+                    </div>
+                    <div class="member-social">
+                        <a href="#" class="social-link"><i class="fab fa-github"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-stack-overflow"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                
+                <!-- Anggota 4 -->
+                <div class="team-member">
+                    <div class="member-photo">
+                        <img src="4.jpeg" alt="M.Rizky M.N">
+                    </div>
+                    <div class="member-info">
+                        <h3 class="member-name">M.Rizky M.N</h3>
+                        <p class="member-role">Designer</p>
+                        <p class="member-description">Bertanggung jawab atas desain visual dan pengalaman pengguna (UX) platform PPLG Learning Hub. Menciptakan antarmuka yang intuitif, estetis, dan responsif yang mendukung berbagai gaya belajar pengguna, serta memastikan konsistensi visual di seluruh platform.</p>
+                    </div>
+                    <div class="member-skills">
+                        <span class="skill-tag">HTML</span>
+                        <span class="skill-tag">CSS</span>
+                        <span class="skill-tag">JavaScript</span>
+                    </div>
+                    <div class="member-social">
+                        <a href="#" class="social-link"><i class="fab fa-unity"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-github"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                
+                <!-- Anggota 5 -->
+                <div class="team-member">
+                    <div class="member-photo">
+                        <img src="5.jpeg" alt="Rafhael Almeric.S">
+                    </div>
+                    <div class="member-info">
+                        <h3 class="member-name">Rafhael Almeric.S</h3>
+                        <p class="member-role">Programmer</p>
+                        <p class="member-description">Bertanggung jawab atas implementasi teknis platform PPLG Learning Hub. Mengubah desain menjadi kode yang fungsional dan efisien, mengintegrasikan berbagai sistem dan API, serta memastikan performa dan keamanan aplikasi yang optimal.</p>
+                    </div>
+                    <div class="member-skills">
+                        <span class="skill-tag">HTML</span>
+                        <span class="skill-tag">CSS</span>
+                        <span class="skill-tag">JavaScript</span>
+                    </div>
+                    <div class="member-social">
+                        <a href="#" class="social-link"><i class="fab fa-github"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-dev"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                
+                <!-- Anggota 6 -->
+                <div class="team-member">
+                    <div class="member-photo">
+                        <img src="6.jpeg" alt="M.Fatturahman">
+                    </div>
+                    <div class="member-info">
+                        <h3 class="member-name">M.Fatturahman</h3>
+                        <p class="member-role">Tester</p>
+                        <p class="member-description">Bertanggung jawab atas jaminan kualitas platform PPLG Learning Hub sebelum diluncurkan. Melakukan pengujian fungsional, performa, keamanan, dan kompatibilitas browser secara sistematis, serta mengidentifikasi dan melapati bug yang memengaruhi pengalaman pengguna.</p>
+                    </div>
+                    <div class="member-skills">
+                        <span class="skill-tag">HTML</span>
+                        <span class="skill-tag">CSS</span>
+                        <span class="skill-tag">JavaScript</span>
+                    </div>
+                    <div class="member-social">
+                        <a href="#" class="social-link"><i class="fab fa-youtube"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-medium"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Team Image Section -->
+            <div class="team-image-section">
+                <img src="0.jpeg" class="team-image">
+                <div class="team-image-overlay">
+                    <h3 class="team-image-title">Team PPLG LEARNING</h3>
+                    <p class="team-image-subtitle">Bersama membangun masa depan pendidikan teknologi</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Ulasan Section -->
+    <section class="ulasan section" id="ulasan">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Ulasan Website</h2>
+                <p class="section-subtitle">Apa kata pengguna tentang PPLG Learning Hub?</p>
+            </div>
+            
+            <div class="review-form-container">
+                <div class="review-form-card">
+                    <h3 class="review-form-title">Beri Ulasan Anda</h3>
+                    <p class="review-form-subtitle">Bagikan pengalaman Anda dengan PPLG Learning Hub</p>
+                    
+                    <form id="reviewForm" class="review-form">
+                        <div class="form-group">
+                            <label for="reviewName">Nama</label>
+                            <div class="input-group">
+                                <i class="fas fa-user"></i>
+                                <input type="text" id="reviewName" name="name" placeholder="Masukkan nama Anda" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="reviewEmail">Email</label>
+                            <div class="input-group">
+                                <i class="fas fa-envelope"></i>
+                                <input type="email" id="reviewEmail" name="email" placeholder="Masukkan email Anda" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Rating</label>
+                            <div class="rating-input">
+                                <div class="rating-stars">
+                                    <i class="far fa-star" data-rating="1"></i>
+                                    <i class="far fa-star" data-rating="2"></i>
+                                    <i class="far fa-star" data-rating="3"></i>
+                                    <i class="far fa-star" data-rating="4"></i>
+                                    <i class="far fa-star" data-rating="5"></i>
+                                </div>
+                                <span class="rating-text">Pilih rating</span>
+                            </div>
+                            <input type="hidden" id="reviewRating" name="rating" value="0" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="reviewComment">Ulasan</label>
+                            <textarea id="reviewComment" name="comment" rows="5" placeholder="Bagikan pengalaman Anda..." required></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Kirim Ulasan</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="reviews-container">
+                <div class="review-stats">
+                    <div class="average-rating">
+                        <div class="rating-number">4.8</div>
+                        <div class="rating-stars">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                        </div>
+                        <p class="rating-count">Berdasarkan 127 ulasan</p>
+                    </div>
+                    
+                    <div class="rating-breakdown">
+                        <div class="rating-bar">
+                            <span>5</span>
+                            <div class="bar-container">
+                                <div class="bar-fill" style="width: 75%"></div>
+                            </div>
+                            <span>75%</span>
+                        </div>
+                        <div class="rating-bar">
+                            <span>4</span>
+                            <div class="bar-container">
+                                <div class="bar-fill" style="width: 15%"></div>
+                            </div>
+                            <span>15%</span>
+                        </div>
+                        <div class="rating-bar">
+                            <span>3</span>
+                            <div class="bar-container">
+                                <div class="bar-fill" style="width: 7%"></div>
+                            </div>
+                            <span>7%</span>
+                        </div>
+                        <div class="rating-bar">
+                            <span>2</span>
+                            <div class="bar-container">
+                                <div class="bar-fill" style="width: 2%"></div>
+                            </div>
+                            <span>2%</span>
+                        </div>
+                        <div class="rating-bar">
+                            <span>1</span>
+                            <div class="bar-container">
+                                <div class="bar-fill" style="width: 1%"></div>
+                            </div>
+                            <span>1%</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="reviews-list" id="reviewsList">
+                    <!-- Review 1 -->
+                    <div class="review-card">
+                        <div class="review-header">
+                            <div class="review-avatar">
+                                <img src="https://picsum.photos/seed/user1/50/50.jpg" alt="User">
+                            </div>
+                            <div class="review-info">
+                                <h4 class="reviewer-name">Andi Pratama</h4>
+                                <div class="review-rating">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                            </div>
+                            <div class="review-date">2 hari yang lalu</div>
+                        </div>
+                        <p class="review-comment">
+                            Platform pembelajaran yang sangat bagus! Materinya lengkap dan mudah dipahami. Saya sudah belajar HTML, CSS, dan JavaScript di sini dan sekarang saya bisa membuat website sendiri. Terima kasih PPLG Learning Hub!
+                        </p>
+                        <div class="review-actions">
+                            <button class="review-action-btn helpful">
+                                <i class="far fa-thumbs-up"></i>
+                                <span>Bermanfaat (23)</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Review 2 -->
+                    <div class="review-card">
+                        <div class="review-header">
+                            <div class="review-avatar">
+                                <img src="https://picsum.photos/seed/user2/50/50.jpg" alt="User">
+                            </div>
+                            <div class="review-info">
+                                <h4 class="reviewer-name">Siti Nurhaliza</h4>
+                                <div class="review-rating">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                </div>
+                            </div>
+                            <div class="review-date">1 minggu yang lalu</div>
+                        </div>
+                        <p class="review-comment">
+                            Sangat membantu dalam belajar pemrograman. Kontennya terstruktur dengan baik dan ada contoh kode yang bisa langsung dicoba. Hanya saja saya harap ada lebih banyak materi tentang framework JavaScript seperti React dan Vue.
+                        </p>
+                        <div class="review-actions">
+                            <button class="review-action-btn helpful">
+                                <i class="far fa-thumbs-up"></i>
+                                <span>Bermanfaat (15)</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Review 3 -->
+                    <div class="review-card">
+                        <div class="review-header">
+                            <div class="review-avatar">
+                                <img src="https://picsum.photos/seed/user3/50/50.jpg" alt="User">
+                            </div>
+                            <div class="review-info">
+                                <h4 class="reviewer-name">Budi Santoso</h4>
+                                <div class="review-rating">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                            </div>
+                            <div class="review-date">2 minggu yang lalu</div>
+                        </div>
+                        <p class="review-comment">
+                            Sebagai pemula di dunia pemrograman, saya merasa PPLG Learning Hub sangat ramah untuk pemula. Penjelasannya detail dan langkah-langkahnya jelas. Kuis interaktifnya juga membantu saya mengukur sejauh mana pemahaman saya.
+                        </p>
+                        <div class="review-actions">
+                            <button class="review-action-btn helpful">
+                                <i class="far fa-thumbs-up"></i>
+                                <span>Bermanfaat (31)</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Review 4 -->
+                    <div class="review-card">
+                        <div class="review-header">
+                            <div class="review-avatar">
+                                <img src="https://picsum.photos/seed/user4/50/50.jpg" alt="User">
+                            </div>
+                            <div class="review-info">
+                                <h4 class="reviewer-name">Dewi Lestari</h4>
+                                <div class="review-rating">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star-half-alt"></i>
+                                </div>
+                            </div>
+                            <div class="review-date">3 minggu yang lalu</div>
+                        </div>
+                        <p class="review-comment">
+                            Platform yang sangat baik untuk belajar pemrograman web. Saya suka antarmukanya yang bersih dan mudah dinavigasi. Materi tentang Python dan Django juga sangat membantu proyek akhir saya. Satu-satunya masalah adalah terkadang video loading agak lambat.
+                        </p>
+                        <div class="review-actions">
+                            <button class="review-action-btn helpful">
+                                <i class="far fa-thumbs-up"></i>
+                                <span>Bermanfaat (12)</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Review 5 -->
+                    <div class="review-card">
+                        <div class="review-header">
+                            <div class="review-avatar">
+                                <img src="https://picsum.photos/seed/user5/50/50.jpg" alt="User">
+                            </div>
+                            <div class="review-info">
+                                <h4 class="reviewer-name">Rizky Ahmad</h4>
+                                <div class="review-rating">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                            </div>
+                            <div class="review-date">1 bulan yang lalu</div>
+                        </div>
+                        <p class="review-comment">
+                            PPLG Learning Hub adalah platform pembelajaran terbaik yang pernah saya gunakan! Materinya selalu update dan komprehensif. Saya berhasil mendapatkan pekerjaan sebagai web developer setelah belajar di sini selama 3 bulan. Highly recommended!
+                        </p>
+                        <div class="review-actions">
+                            <button class="review-action-btn helpful">
+                                <i class="far fa-thumbs-up"></i>
+                                <span>Bermanfaat (45)</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="load-more-container">
+                    <button class="btn btn-secondary" id="loadMoreReviews">Muat Lebih Banyak</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-col">
+                    <div class="footer-logo">
+                    </div>
+                    <p class="footer-description">
+                        Platform pembelajaran pemrograman web dan pengembangan game terbaik untuk siswa PPLG. Materi lengkap, contoh kode nyata, dan pembelajaran interaktif.
+                    </p>
+                </div>
+            
+                <div class="footer-col">
+                    <h3 class="footer-title">Link Cepat</h3>
+                    <ul class="footer-links">
+                        <li><a href="#beranda">Beranda</a></li>
+                        <li><a href="#materi-pemrograman">Materi Pemrograman</a></li>
+                        <li><a href="#materi-game">Materi Game</a></li>
+                        <li><a href="#contoh-kode">Contoh Kode</a></li>
+                        <li><a href="#kuis-interaktif">Kuis Interaktif</a></li>
+                        <li><a href="#profil-kelompok">Profil Kelompok</a></li>
+                        <li><a href="#ulasan">Ulasan</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-col">
+                    <h3 class="footer-title">Kontak Kami</h3>
+                    <ul class="footer-contact">
+                        <li>
+                            <i class="fas fa-map-marker-alt"></i>
+                            <div>Jl. Pendidikan No. 123, Jakarta, Indonesia</div>
+                        </li>
+                        <li>
+                            <i class="fas fa-phone"></i>
+                            <div>+62 812 3456 7890</div>
+                        </li>
+                        <li>
+                            <i class="fas fa-envelope"></i>
+                            <div>info@pplglearning.id</div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                &copy; 2023 PPLG Learning Hub. Semua hak dilindungi.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Login/Register Modal -->
+    <div class="auth-modal" id="loginModal">
+        <div class="modal-overlay" id="modalOverlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <img src="https://i.imgur.com/8zvX5Jf.png" alt="PPLG Learning Hub" class="modal-logo-image">
+                <button class="close-modal" id="closeModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                <!-- Tab Navigation -->
+                <div class="auth-tabs">
+                    <div class="auth-tab active" data-tab="login">Masuk</div>
+                    <div class="auth-tab" data-tab="register">Daftar</div>
+                </div>
+                
+                <!-- Login Form -->
+                <div class="auth-form-container active" id="loginFormContainer">
+                    <h2 class="auth-title">Masuk ke Akun Anda</h2>
+                    <p class="auth-subtitle">Akses materi pembelajaran lengkap dengan login</p>
+                    
+                    <form id="loginForm" class="auth-form">
+                        <div class="form-group">
+                            <label for="loginEmail">Email</label>
+                            <div class="input-group">
+                                <i class="fas fa-envelope"></i>
+                                <input type="email" id="loginEmail" name="email" placeholder="Masukkan email" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="loginPassword">Password</label>
+                            <div class="input-group">
+                                <i class="fas fa-lock"></i>
+                                <input type="password" id="loginPassword" name="password" placeholder="Masukkan password" required>
+                                <button type="button" class="toggle-password" id="toggleLoginPassword">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="form-options">
+                            <div class="remember-me">
+                                <input type="checkbox" id="remember" name="remember">
+                                <label for="remember">Ingat saya</label>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-block">Masuk</button>
+                    </form>
+                </div>
+                
+                <!-- Register Form -->
+                <div class="auth-form-container" id="registerFormContainer">
+                    <h2 class="auth-title">Buat Akun Baru</h2>
+                    <p class="auth-subtitle">Daftar untuk mengakses semua materi pembelajaran</p>
+                    
+                    <form id="registerForm" class="auth-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="registerFirstName">Nama Depan</label>
+                                <div class="input-group">
+                                    <i class="fas fa-user"></i>
+                                    <input type="text" id="registerFirstName" name="firstName" placeholder="Nama depan" required>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="registerLastName">Nama Belakang</label>
+                                <div class="input-group">
+                                    <i class="fas fa-user"></i>
+                                    <input type="text" id="registerLastName" name="lastName" placeholder="Nama belakang" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="registerEmail">Email</label>
+                            <div class="input-group">
+                                <i class="fas fa-envelope"></i>
+                                <input type="email" id="registerEmail" name="email" placeholder="Masukkan email" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="registerPassword">Password</label>
+                            <div class="input-group">
+                                <i class="fas fa-lock"></i>
+                                <input type="password" id="registerPassword" name="password" placeholder="Minimal 6 karakter" required>
+                                <button type="button" class="toggle-password" id="toggleRegisterPassword">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <div class="password-strength" id="passwordStrength">
+                                <div class="strength-bar"></div>
+                                <p class="strength-text">Kekuatan password: <span id="strengthValue">-</span></p>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="confirmPassword">Konfirmasi Password</label>
+                            <div class="input-group">
+                                <i class="fas fa-lock"></i>
+                                <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Konfirmasi password" required>
+                                <button type="button" class="toggle-password" id="toggleConfirmPassword">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="form-options">
+                            <div class="terms-agreement">
+                                <input type="checkbox" id="terms" name="terms" required>
+                                <label for="terms">Saya setuju dengan <a href="#" class="terms-link">Syarat & Ketentuan</a></label>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-block">Daftar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Materi Detail Modal -->
+    <div class="materi-modal" id="materiModal">
+        <div class="modal-overlay" id="materiModalOverlay"></div>
+        <div class="modal-content materi-modal-content">
+            <div class="modal-header">
+                <h2 class="materi-modal-title" id="materiModalTitle">Judul Materi</h2>
+                <button class="close-modal" id="closeMateriModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="materi-tabs">
+                    <div class="materi-tab active" data-tab="overview">Ringkasan</div>
+                    <div class="materi-tab" data-tab="modules">Modul Pembelajaran</div>
+                    <div class="materi-tab" data-tab="resources">Sumber Daya</div>
+                </div>
+                
+                <div class="materi-tab-content">
+                    <div class="tab-pane active" id="overview">
+                        <div class="materi-overview">
+                            <div class="materi-description" id="materiDescription">
+                                <!-- Deskripsi materi akan dimuat di sini -->
+                            </div>
+                            
+                            <div class="materi-stats">
+                                <div class="materi-stat">
+                                    <i class="far fa-clock"></i>
+                                    <div>
+                                        <h4 id="materiDuration">15 Jam</h4>
+                                        <p>Durasi</p>
+                                    </div>
+                                </div>
+                                <div class="materi-stat">
+                                    <i class="far fa-folder"></i>
+                                    <div>
+                                        <h4 id="materiModules">12 Modul</h4>
+                                        <p>Modul</p>
+                                    </div>
+                                </div>
+                                <div class="materi-stat">
+                                    <i class="fas fa-signal"></i>
+                                    <div>
+                                        <h4 id="materiLevel">Pemula</h4>
+                                        <p>Level</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="materi-video-container" id="materiVideoContainer">
+                                <!-- Video akan dimuat di sini -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-pane" id="modules">
+                        <div class="modules-list" id="modulesList">
+                            <!-- Daftar modul akan dimuat di sini -->
+                        </div>
+                    </div>
+                    
+                    <div class="tab-pane" id="resources">
+                        <div class="resources-list" id="resourcesList">
+                            <!-- Daftar sumber daya akan dimuat di sini -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Profile Modal -->
+    <div class="profile-modal" id="profileModal">
+        <div class="modal-overlay" id="profileModalOverlay"></div>
+        <div class="modal-content profile-modal-content">
+            <div class="modal-header">
+                <h2 class="profile-modal-title">Profil Pengguna</h2>
+                <button class="close-modal" id="closeProfileModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="profile-header">
+                    <div class="profile-avatar">
+                        <img id="profileAvatar" src="https://picsum.photos/seed/user123/150/150.jpg" alt="Profile Avatar">
+                        <button class="change-avatar-btn" id="changeAvatarBtn">
+                            <i class="fas fa-camera"></i>
+                        </button>
+                    </div>
+                    <div class="profile-info">
+                        <h3 id="profileName">Nama Pengguna</h3>
+                        <p id="profileEmail">email@example.com</p>
+                        <div class="profile-stats">
+                            <div class="profile-stat">
+                                <h4 id="profileCoursesCompleted">0</h4>
+                                <p>Kursus Selesai</p>
+                            </div>
+                            <div class="profile-stat">
+                                <h4 id="profileQuizScore">0</h4>
+                                <p>Skor Tertinggi</p>
+                            </div>
+                            <div class="profile-stat">
+                                <h4 id="profileStudyHours">0</h4>
+                                <p>Jam Belajar</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="profile-tabs">
+                    <div class="profile-tab active" data-tab="account">Akun</div>
+                    <div class="profile-tab" data-tab="progress">Progress</div>
+                    <div class="profile-tab" data-tab="achievements">Pencapaian</div>
+                </div>
+                
+                <div class="profile-tab-content">
+                    <div class="tab-pane active" id="account">
+                        <form id="profileForm" class="profile-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="profileFirstName">Nama Depan</label>
+                                    <div class="input-group">
+                                        <i class="fas fa-user"></i>
+                                        <input type="text" id="profileFirstName" name="firstName" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="profileLastName">Nama Belakang</label>
+                                    <div class="input-group">
+                                        <i class="fas fa-user"></i>
+                                        <input type="text" id="profileLastName" name="lastName" required>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="profileEmailInput">Email</label>
+                                <div class="input-group">
+                                    <i class="fas fa-envelope"></i>
+                                    <input type="email" id="profileEmailInput" name="email" required>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="profileBio">Bio</label>
+                                <textarea id="profileBio" name="bio" rows="4" placeholder="Ceritakan tentang diri Anda..."></textarea>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                        </form>
+                        
+                        <div class="password-change">
+                            <h4>Ubah Password</h4>
+                            <form id="passwordChangeForm" class="password-form">
+                                <div class="form-group">
+                                    <label for="currentPassword">Password Saat Ini</label>
+                                    <div class="input-group">
+                                        <i class="fas fa-lock"></i>
+                                        <input type="password" id="currentPassword" name="currentPassword" required>
+                                        <button type="button" class="toggle-password" id="toggleCurrentPassword">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="newPassword">Password Baru</label>
+                                    <div class="input-group">
+                                        <i class="fas fa-lock"></i>
+                                        <input type="password" id="newPassword" name="newPassword" required>
+                                        <button type="button" class="toggle-password" id="toggleNewPassword">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="confirmNewPassword">Konfirmasi Password Baru</label>
+                                    <div class="input-group">
+                                        <i class="fas fa-lock"></i>
+                                        <input type="password" id="confirmNewPassword" name="confirmNewPassword" required>
+                                        <button type="button" class="toggle-password" id="toggleConfirmNewPassword">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary">Ubah Password</button>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-pane" id="progress">
+                        <div class="progress-container">
+                            <h4>Progress Pembelajaran</h4>
+                            <div class="course-progress-list" id="courseProgressList">
+                                <!-- Progress courses akan dimuat di sini -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-pane" id="achievements">
+                        <div class="achievements-container">
+                            <h4>Pencapaian Anda</h4>
+                            <div class="achievements-list" id="achievementsList">
+                                <!-- Achievements akan dimuat di sini -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
